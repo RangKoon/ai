@@ -8,5 +8,4 @@ public class YummyheapApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(YummyheapApplication.class, args);
 	}
-
 }
