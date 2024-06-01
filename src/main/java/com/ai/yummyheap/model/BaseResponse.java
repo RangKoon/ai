@@ -34,5 +34,5 @@ public class BaseResponse<T> {
         this.message = message;
         return this;
     }
-
 }
+
