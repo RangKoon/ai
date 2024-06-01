@@ -7,7 +7,7 @@ def detect_objects(image_path):
 
     # 이미지에서 객체 탐지 수행
     results = model(image_path)
-    
+
     detected_classes = set()
 
     # 탐지된 객체의 클래스 수집
