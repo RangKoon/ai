@@ -12,8 +12,4 @@ public class ChatGPTRequest {
     private String prompt;
     private int max_tokens;
     private double temperature;
-
-    public void updateModel(String model) {
-        this.model = model;
-    }
 }

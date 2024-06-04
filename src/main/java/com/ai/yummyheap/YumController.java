@@ -1,7 +1,6 @@
 package com.ai.yummyheap;
 
 import com.ai.yummyheap.model.ChatGPTRequest;
-import com.ai.yummyheap.model.ChatGPTResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -9,10 +8,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/yummy-heap")
 public class YumController {
+
+    private static final Logger logger = LoggerFactory.getLogger(YumController.class);
 
     @Value("${openai.model}")
     private String model;
@@ -33,11 +36,11 @@ public class YumController {
     public ResponseEntity<String> chat(@RequestBody ChatGPTRequest request) {
         try {
             // 모델 설정
-            request.updateModel(model);
+            request.setModel(model);
 
             // HTTP 요청 본문 출력 (디버깅용)
             String requestJson = objectMapper.writeValueAsString(request);
-            System.out.println("Request JSON: " + requestJson);
+            logger.debug("Request JSON: {}", requestJson);
 
             // HTTP 요청 헤더 설정
             HttpHeaders headers = new HttpHeaders();
@@ -51,8 +54,8 @@ public class YumController {
             ResponseEntity<String> responseEntity = restTemplate.exchange(apiURL, HttpMethod.POST, entity, String.class);
 
             // 응답 내용 로깅
-            System.out.println("Response Status Code: " + responseEntity.getStatusCode());
-            System.out.println("Response Body: " + responseEntity.getBody());
+            logger.debug("Response Status Code: {}", responseEntity.getStatusCode());
+            logger.debug("Response Body: {}", responseEntity.getBody());
 
             // HTTP 응답 상태코드에 따른 처리
             if (responseEntity.getStatusCode().is2xxSuccessful()) {
@@ -64,14 +67,26 @@ public class YumController {
             }
         } catch (HttpClientErrorException e) {
             // 예외 발생 시 에러 응답 반환
-            e.printStackTrace();
+            logger.error("HTTP Client Error: Status code: {}, Response body: {}", e.getStatusCode(), e.getResponseBodyAsString());
             return ResponseEntity.status(e.getStatusCode())
                     .body("Error occurred: " + e.getResponseBodyAsString());
         } catch (Exception e) {
             // 일반 예외 발생 시 에러 응답 반환
-            e.printStackTrace();
+            logger.error("General Error: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error occurred: " + e.getMessage());
         }
     }
 }
+
+/*
+curl -X POST http://localhost:8080/yummy-heap/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "davinci-002",
+    "prompt": "Say this is a test",
+    "max_tokens": 7,
+    "temperature": 0.0
+  }'
+
+* */
