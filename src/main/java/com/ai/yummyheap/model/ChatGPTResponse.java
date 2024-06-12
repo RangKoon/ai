@@ -16,8 +16,6 @@ public class ChatGPTResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Choice {
-        private int index;
-        private Message message;
-
+        private String text;
     }
 }
